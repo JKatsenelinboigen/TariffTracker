@@ -1,5 +1,5 @@
 from models.tariff import load_tariffs_from_json
-
+import json
 
 def build_tariff_dict(tariffs):
     tariff_dict = {}
@@ -9,13 +9,14 @@ def build_tariff_dict(tariffs):
             if htsno not in current_level:
                 current_level[htsno] = {}
             current_level = current_level[htsno]
-        current_level['tariff'] = tariff
+        current_level['tariff'] = tariff.model_dump()
 
     return tariff_dict
 
 
-file_path = 'src/data/short_data.json'
+file_path = 'src/data/tariff_data.json'
 tariffs = load_tariffs_from_json(file_path)
 
-tariff_dict = build_tariff_dict(tariffs[0:5])
-pass
+tariff_dict = build_tariff_dict(tariffs)
+with open("tariff_hierarchy.json", "w") as file:
+    json.dump(tariff_dict, file, indent=4)  # `indent=4` makes it readable
