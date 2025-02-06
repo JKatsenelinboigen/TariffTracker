@@ -9,6 +9,7 @@ class Footnote(BaseModel):
 
 class TariffItem(BaseModel):
     htsno: Optional[str]
+    htsno_list: Optional[List[str]]
     indent: str
     description: str
     superior: Optional[str]
@@ -21,6 +22,12 @@ class TariffItem(BaseModel):
     additionalDuties: Optional[str]
     addiitionalDuties: Optional[str]
 
+    # override the constructor to handle the htsno_list
+    def __init__(self, **data):
+        if 'htsno_list' not in data:
+            data['htsno_list'] = data['htsno'].split('.') if data['htsno'] else []
+        super().__init__(**data)
+
 class TariffData(RootModel):
     root: List[TariffItem]
 
@@ -29,8 +36,3 @@ def load_tariffs_from_json(file_path: str) -> TariffData:
         tariff_data = json.load(file)
     return [TariffItem(**tariff) for tariff in tariff_data]
 
-tariffs = load_tariffs_from_json('src/data/tariff_data.json')
-
-
-for tariff in tariffs:
-    print(tariff)

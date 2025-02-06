@@ -1,26 +1,21 @@
-import requests
-import json
+from models.tariff import load_tariffs_from_json
 
-def fetch_tariff_data():
-    url = "https://hts.usitc.gov/reststop/exportList?from=0&to=20000&format=JSON&styles=true"
-    # url = "https://hts.usitc.gov/api/search?query=copper"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        # print(response.content)
-        data = response.json()
-        return data
-    else:
-        print(f"Failed to fetch data. Status code: {response.status_code}")
-        return None
 
-def save_data_to_file(data, filename="tariff_data.json"):
-    with open(filename, 'w') as file:
-        json.dump(data, file)
-    print(f"Data saved to {filename}")
+def build_tariff_dict(tariffs):
+    tariff_dict = {}
+    for tariff in tariffs:
+        current_level = tariff_dict
+        for htsno in tariff.htsno_list:
+            if htsno not in current_level:
+                current_level[htsno] = {}
+            current_level = current_level[htsno]
+        current_level['tariff'] = tariff
 
-if __name__ == "__main__":
-    data = fetch_tariff_data()
-    if data:
-        save_data_to_file(data)
-    
+    return tariff_dict
+
+
+file_path = 'src/data/short_data.json'
+tariffs = load_tariffs_from_json(file_path)
+
+tariff_dict = build_tariff_dict(tariffs[0:5])
+pass
